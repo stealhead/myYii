@@ -2,12 +2,12 @@
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <div class="container" id="app" style="height: 500px; font-size: 20px; margin-top: 20px;">
     <div class="row" style="width: 1100px; height: 300px;">
-        <div class="col-lg-5 border">
+        <div class="col-lg-5">
             <span v-for="user in users">
                 <p v-if="user" class="card-text">昵称：{{ user.name }}-- IP：{{ user.ip }}</p>
             </span>
         </div>
-        <div class="col-lg-6 border ml-2">
+        <div class="col-lg-6 ml-2">
             <p v-for="cha in chatArr" class="card-text">{{ cha }}</p>
         </div>
     </div>
@@ -24,6 +24,7 @@
         </div>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
     var app = new Vue({
         el: '#app',
@@ -34,6 +35,19 @@
             myName: '',
             canChat: false,
             users: []
+        },
+        mounted: function () {
+            const myApp = this;
+            $('#app').bind('keyup', function(event) {
+                if (event.keyCode == "13") {
+                    //回车执行查询
+                    if (myApp.canChat) {
+                        myApp.sendMsg();
+                    } else {
+                        myApp.startChat();
+                    }
+                }
+            });
         },
         methods: {
             startChat: function() {
@@ -70,6 +84,10 @@
                 return ws;
             },
             sendMsg: function() {
+                if (this.message === '') {
+                    alert('请填写聊天内容后发送');
+                    return false;
+                }
                 this.wg.send(this.message);
                 this.message = '';
             }

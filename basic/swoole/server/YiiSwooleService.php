@@ -35,12 +35,12 @@ class YiiSwooleService
 
     public function receive(Server $server, int $fd, int $reactor_id, string $data) {
         echo $data . "\n";
-//        $server->tick(1000, function() use ($server, $fd, $data) {
-//            $workId = $server->task($data . ":{$fd}");
-//        });
+        $server->tick(100, function() use ($server, $fd, $data) {
+            $workId = $server->task($data . ":{$fd}");
+        });
         $fds = $server->connection_list();
         foreach ($fds as $d) {
-            if ($d == $fd) continue;
+//            if ($d == $fd) continue;
             $server->send($d, $data . time());
         }
     }
@@ -67,5 +67,8 @@ class YiiSwooleService
 }
 
 $yiiServer = new YiiSwooleService();
-$yiiServer->server->set(['task_worker_num' => 2]);
+$yiiServer->server->set([
+    'worker_num' => 2,
+    'task_worker_num' => 2,
+]);
 $yiiServer->server->start();

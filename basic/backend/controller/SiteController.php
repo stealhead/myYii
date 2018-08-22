@@ -9,6 +9,8 @@ namespace app\backend\controller;
 
 use app\common\backend\BackendController;
 use app\models\LoginForm;
+use Swoole\Coroutine;
+use Swoole\Coroutine\Client;
 use yii\filters\AccessControl;
 use yii;
 
@@ -23,7 +25,7 @@ class SiteController extends BackendController
             'class' => AccessControl::className(),
             'rules' => [
                 [
-                    'actions' => ['login', 'chat'],
+                    'actions' => ['login', 'chat', 'hello'],
                     'allow' => true,
                 ],
                 [
@@ -47,6 +49,16 @@ class SiteController extends BackendController
         return $this->render('index');
     }
     public function actionHello() {
+        Coroutine::create(function() {
+            $client = new Client();
+            if (!$client->connect('127.0.0.1', 9501, 0.5))
+            {
+                exit("connect failed. Error: \n");
+            }
+            $client->send("hello world\n");
+            echo $client->recv();
+            $client->close();
+        });
         return $this->render('hello');
     }
 

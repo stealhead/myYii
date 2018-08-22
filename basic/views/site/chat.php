@@ -1,29 +1,88 @@
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-<div class="container" id="app" style="height: 500px; font-size: 20px; margin-top: 20px;">
-    <div class="row" style="width: 1100px; height: 300px;">
-        <div class="col-lg-5">
-            <span v-for="user in users">
-                <p v-if="user" class="card-text">昵称：{{ user.name }}-- IP：{{ user.ip }}</p>
-            </span>
-        </div>
-        <div class="col-lg-6 ml-2">
-            <p v-for="cha in chatArr" class="card-text">{{ cha }}</p>
-        </div>
-    </div>
-    <div v-if="canChat">
-        <input type="text" class="form-control" v-model="message">
-        <button class="btn btn-primary mr-3" @click="sendMsg">发送</button>
-    </div>
-    <div v-else>
-        <div>
-            <input type="text" class="form-control" placeholder="填写聊天昵称" v-model="myName">
-        </div>
-        <div>
-            <button  @click="startChat" class="btn btn-primary m-3">开始聊天</button>
-        </div>
-    </div>
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<div id="app">
+    <el-container style="height: px; border: 1px solid #eee">
+        <el-aside width="300px" style="background-color: rgb(238, 241, 246)">
+            <el-menu>
+                <p v-for="user in users">
+                    {{ user.name }}
+                </p>
+            </el-menu>
+        </el-aside>
+        <el-container>
+            <el-main style="text-align: left; font-size: 12px">
+                <el-table :data="chatArr">
+                    <el-body>
+                        <el-table-column>
+                            <template slot-scope="scope">
+                                <span> {{ scope.row }} </span>
+                            </template>
+                        </el-table-column>
+                    </el-body>
+                </el-table>
+            </el-main>
+        </el-container>
+    </el-container>
+    <el-input v-if="!canChat" type="text" class="form-control" placeholder="填写聊天昵称" v-model="myName">
+    </el-input>
+    <el-input v-else
+            type="textarea"
+            :rows="2"
+            placeholder="请输入内容"
+            v-model="message">
+    </el-input>
 </div>
+
+
+
+<style>
+    .el-header, .el-footer {
+        /*background-color: #B3C0D1;*/
+        color: #333;
+        text-align: center;
+        line-height: 60px;
+    }
+
+    .el-aside {
+        /*background-color: #D3DCE6;*/
+        color: #333;
+        text-align: center;
+        line-height: 200px;
+    }
+
+    .el-main {
+        /*background-color: #E9EEF3;*/
+        color: #333;
+        text-align: center;
+        line-height: 160px;
+    }
+    .text {
+        font-size: 14px;
+    }
+
+    .item {
+        padding: 18px 0;
+    }
+
+    .box-card {
+        width: 480px;
+    }
+
+    body > .el-container {
+        margin-bottom: 40px;
+    }
+
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+        line-height: 260px;
+    }
+
+    .el-container:nth-child(7) .el-aside {
+        line-height: 320px;
+    }
+</style>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
     var app = new Vue({

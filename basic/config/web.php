@@ -67,6 +67,11 @@ $config = [
                     'route' => 'site/hello',
                     'verb' => 'GET'
                 ],
+                [
+                    'pattern' => 'file',
+                    'route' => 'site/file',
+                    'verb' => 'POST'
+                ],
             ],
         ],
     ],

@@ -26,6 +26,7 @@ class YiiSwooleService
     }
 
     public function connect(Server $server, int $fd, int $reactorId) {
+        echo sprintf("fd:%d, reactorId:%d\n", $fd, $reactorId);
         echo "swoole has been connect \n";
     }
 
@@ -35,9 +36,9 @@ class YiiSwooleService
 
     public function receive(Server $server, int $fd, int $reactor_id, string $data) {
         echo $data . "\n";
-        $server->tick(100, function() use ($server, $fd, $data) {
-            $workId = $server->task($data . ":{$fd}");
-        });
+//        $server->tick(100, function() use ($server, $fd, $data) {
+//            $workId = $server->task($data . ":{$fd}");
+//        });
         $fds = $server->connection_list();
         foreach ($fds as $d) {
 //            if ($d == $fd) continue;
@@ -70,5 +71,6 @@ $yiiServer = new YiiSwooleService();
 $yiiServer->server->set([
     'worker_num' => 2,
     'task_worker_num' => 2,
+    'reactor_num' => 1,
 ]);
 $yiiServer->server->start();

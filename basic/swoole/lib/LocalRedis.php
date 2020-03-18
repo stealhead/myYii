@@ -33,8 +33,7 @@ class LocalRedis
     }
 
     public function subscribe($channel) {
-        $redis = self::getRedis();
-        $redis->subscribe($channel, array($this, 'callback'));
+        self::$redis->subscribe($channel, array($this, 'callback'));
     }
 
     public function publish($channel, $message) {

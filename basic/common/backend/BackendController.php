@@ -22,6 +22,7 @@ class BackendController extends Controller
             'class' => VerbFilter::className(),
             'actions' => [
                 'logout' => ['post'],
+                'file' => ['post'],
             ],
         ];
         return $behaviors;

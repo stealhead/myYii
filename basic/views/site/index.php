@@ -51,3 +51,9 @@ $this->title = 'My Yii Application';
 
     </div>
 </div>
+<?php
+use yii\captcha\Captcha;?>
+
+<?php
+echo Captcha::widget(['name'=>'captchaimg','captchaAction'=>'site/captcha',
+    'imageOptions'=>['id'=>'captchaimg', 'title'=>'换一个', 'alt'=>'换一个', 'style'=>'cursor:pointer;margin-left:25px;'],'template'=>'{image}']);

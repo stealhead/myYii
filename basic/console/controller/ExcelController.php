@@ -9,8 +9,10 @@
 namespace app\console\controller;
 
 
+use app\models\HttpService;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use yii\console\Controller;
+
 
 class ExcelController extends Controller
 {
@@ -93,6 +95,83 @@ class ExcelController extends Controller
     }
 
     /**
+     * 渠道价调整 20200414-1
+     */
+    public function actionSkuChannelPrice20200414First() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200414-1.xls";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200414-1.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (!is_numeric(trim($datum[0])) || !is_numeric(trim($datum[1]))) {
+                    var_dump($datum);
+                    continue;
+                }
+                $skuInfo = [
+                    'sku_id' => trim($datum[0]),
+                    'channel_price' => trim($datum[1])
+                ];
+                $sql = json_encode($skuInfo);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+    /**
+     * 渠道价调整 20200414-2
+     */
+    public function actionSkuChannelPrice20200414Second() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200414-2.xls";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200414-2.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (!is_numeric(trim($datum[0])) || !is_numeric(trim($datum[1]))) {
+                    var_dump($datum);
+                    continue;
+                }
+                $skuInfo = [
+                    'sku_id' => trim($datum[0]),
+                    'channel_price' => trim($datum[1])
+                ];
+                $sql = json_encode($skuInfo);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
+    /**
      *
      */
     public function actionGetRepetition() {
@@ -112,5 +191,48 @@ class ExcelController extends Controller
 
     public function getPath() {
         return dirname(dirname(__DIR__));
+    }
+
+    /**
+     *
+     */
+    public function actionSkuStockInfo() {
+        $httpService = new HttpService();
+        $inputFileName = $this->getPath() . "/models/json/sku-stock.json";
+        $outfile = $this->getPath() . '/models/excel/sku-stock.csv';
+        $url = "https://newadmin.wzj.com/api/stock/lock-info";
+        $token = 'ATK125_fd10542aaaf5f2fd105d2aa2e';
+        try {
+            $skuInfos = json_decode(file_get_contents($inputFileName), true);
+
+            file_put_contents($outfile, "占用单据类型,占用单据编号,占用时间,总订单编号,客户姓名,收货人手机号,系列名称,商品名称,SPU,SKUID,材质,颜色,规格,数量\n");
+            foreach ($skuInfos as  $skuInfo) {
+
+                $data = [
+                    'warehouse_id' => $skuInfo['warehouse_id'],
+                    'sku_id' => $skuInfo['sku_id']
+                ];
+                $response = $httpService->curlGet($url, $data, $token);
+                $responseObj = json_decode($response, true);
+                if ($responseObj['status'] != "SUCCESS") {
+                    echo "商品SKU:{$skuInfo['sku_id']} 出错\n";
+                }
+                foreach ($responseObj['results'] as $result) {
+                    $mainOrderCode = $result['main_order_code'] ?? '';
+                    $receiverName = $result['receiver_name'] ?? '';
+                    $receiverMobile = $result['receiver_mobile'] ?? '';
+                    $sku = "{$result['data_source_type']},{$result['data_source_order']},{$result['lock_time']},{$mainOrderCode},{$receiverName},{$receiverMobile},{$result['brand']},{$result['title']},{$result['product_id']},{$result['sku_id']},{$result['material']},{$result['color']},{$result['dimension']},{$result['num']}\n";
+                    file_put_contents($outfile, $sku, FILE_APPEND);
+                    echo "商品SKU:{$skuInfo['sku_id']}, 仓库:{$skuInfo['warehouse_id']} 成功\n";
+                }
+
+
+            }
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
     }
 }

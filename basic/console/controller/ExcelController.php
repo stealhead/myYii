@@ -98,8 +98,46 @@ class ExcelController extends Controller
      * 渠道价调整 20200414-1
      */
     public function actionSkuChannelPrice20200414First() {
-        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200414-1.xls";
+        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200414-1.xlsx";
         $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200414-1.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (!is_numeric(trim($datum[1])) || !is_numeric(trim($datum[4]))) {
+                    var_dump($datum);
+                    continue;
+                }
+                $skuInfo = [
+                    'sku_id' => trim($datum[1]),
+                    'channel_price' => trim($datum[4])
+                ];
+                $sql = json_encode($skuInfo);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+    /**
+     * 渠道价调整 20200414-2
+     */
+    public function actionSkuChannelPrice20200414Second() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200414-2.xls";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200414-2.json';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = '[';
@@ -132,12 +170,13 @@ class ExcelController extends Controller
         }
         echo("成功\n");
     }
+
     /**
-     * 渠道价调整 20200414-2
+     * 渠道价调整 20200424
      */
-    public function actionSkuChannelPrice20200414Second() {
-        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200414-2.xls";
-        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200414-2.json';
+    public function actionSkuChannelPrice20200424Second() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-channel-price-adjust20200424.xls";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200424.json';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = '[';
@@ -228,6 +267,42 @@ class ExcelController extends Controller
 
 
             }
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
+    /**
+     * 同步wms库存到oms
+     */
+    public function actionSyncSkuStock20200515() {
+        $inputFileName = $this->getPath() . "/models/excel/sync-sku-stock-20200515-test.xls";
+        $outfile = $this->getPath() . '/models/sql/sync-sku-stock-20200515-test.sql';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = "create temporary table tmp__sync_sku_stock
+                    as
+                    select b.code, a.warehouse_id, a.num
+                    from stock as a
+                    join product_sku b on a.sku_id = b.id
+                    where 1 = 2 \n";
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                $skuCode = $datum['0'];
+                $warehouseCode = $datum['2'];
+                $num = $datum['3'];
+                $sql = "union select '{$skuCode}', '{$warehouseCode}', '{$num}' \n";
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ';', FILE_APPEND);
 
         }
         catch (\Exception $e) {

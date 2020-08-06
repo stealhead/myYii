@@ -9,6 +9,7 @@ function A () {
     echo 'a';
     echo 'b';
     echo 'n';
+    echo 'm';
     echo 'c';
     echo 'd';
     echo 'e';

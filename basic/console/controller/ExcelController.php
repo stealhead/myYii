@@ -211,6 +211,84 @@ class ExcelController extends Controller
     }
 
     /**
+     * 渠道价调整 20200610
+     */
+    public function actionSkuChannelPrice20200610() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-price-channel-20200610.xls";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200610.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (!is_numeric(trim($datum[0])) || !is_numeric(trim($datum[1]))) {
+                    var_dump($datum);
+                    continue;
+                }
+                $skuInfo = [
+                    'sku_id' => trim($datum[0]),
+                    'channel_price' => trim($datum[1])
+                ];
+                $sql = json_encode($skuInfo);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
+    /**
+     * 渠道价调整 20200710
+     */
+    public function actionSkuChannelPrice20200710() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-price-channel-20200710.xls";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20200710.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (!is_numeric(trim($datum[2])) || !is_numeric(trim($datum[7]))) {
+                    var_dump($datum);
+                    continue;
+                }
+                $skuInfo = [
+                    'sku_id' => trim($datum[2]),
+                    'channel_price' => trim($datum[7])
+                ];
+                $sql = json_encode($skuInfo);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
+    /**
      *
      */
     public function actionGetRepetition() {
@@ -285,9 +363,9 @@ class ExcelController extends Controller
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = "create temporary table tmp__sync_sku_stock
                     as
-                    select b.code, a.warehouse_id, a.num
+                    select a.sku_id, b.wms_warehouse_code, a.num
                     from stock as a
-                    join product_sku b on a.sku_id = b.id
+                    join warehouse b on a.warehouse_id = b.id
                     where 1 = 2 \n";
             file_put_contents($outfile, $sql);
             $spreadsheet->setActiveSheetIndex(0);
@@ -296,10 +374,18 @@ class ExcelController extends Controller
                 if ($k == 0) {
                     continue;
                 }
-                $skuCode = $datum['0'];
-                $warehouseCode = $datum['2'];
-                $num = $datum['3'];
-                $sql = "union select '{$skuCode}', '{$warehouseCode}', '{$num}' \n";
+                $skuId = trim($datum['6']);
+                $warehouseCode = trim($datum['2']);
+                $num = trim($datum['4']);
+                if (!is_numeric($skuId) || !is_numeric($num)) {
+                    var_dump($datum);
+                    continue;
+                }
+                if ($num < 0) {
+                    continue;
+                }
+
+                $sql = "union select {$skuId}, '{$warehouseCode}', {$num} \n";
                 file_put_contents($outfile, $sql, FILE_APPEND);
             }
             file_put_contents($outfile, ';', FILE_APPEND);

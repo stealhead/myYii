@@ -16,6 +16,7 @@ function A () {
     echo 'd';
     echo 'e';
     echo 'f';
+    echo 'n';
     echo 'g';
 }
 

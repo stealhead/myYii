@@ -10,6 +10,7 @@ function A () {
     echo 'b';
     echo 'n';
     echo 'x';
+    echo 'y';
     echo 'm';
     echo 'c';
     echo 'd';

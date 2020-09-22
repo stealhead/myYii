@@ -289,6 +289,40 @@ class ExcelController extends Controller
     }
 
     /**
+     * 初始化商品中心属性分组
+     */
+    public function actionAttributeInit() {
+        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
+        $outfile = $this->getPath() . '/models/json/attribute-group20200922.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(2);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                $skuInfo = [
+                    'group_name' => trim($datum[0]),
+                ];
+                $sql = json_encode($skuInfo, JSON_UNESCAPED_UNICODE);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
+    /**
      *
      */
     public function actionGetRepetition() {

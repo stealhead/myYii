@@ -323,6 +323,48 @@ class ExcelController extends Controller
     }
 
     /**
+     *  初始化新增属性信息
+     */
+    public function actionNewAttributes() {
+        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
+        $outfile = $this->getPath() . '/models/json/new-attribute-20200922.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                $skuInfo = [
+                    'attribute_name' => trim($datum[0]),
+                    'apply_to' => trim($datum[1]),
+                    'group_name' => trim($datum[2]),
+                    'input_type' => trim($datum[3]),
+                    'value_set' => trim($datum[4]),
+                    'factory_catalog' => trim($datum[5]),
+                    'competitor_catalog' => trim($datum[6]),
+                    'product_catalog' => trim($datum[7]),
+                    'is_new' => trim($datum[8]),
+                ];
+                $sql = json_encode($skuInfo, JSON_UNESCAPED_UNICODE);
+                if (trim($datum[0])) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
+    /**
      *
      */
     public function actionGetRepetition() {

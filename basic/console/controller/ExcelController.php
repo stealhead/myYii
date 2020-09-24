@@ -369,6 +369,56 @@ where 1 = 2\n";
         echo("成功\n");
     }
 
+
+    /**
+     * 属性分组修改
+     * @return string
+     */
+    public function actionUpdateAttributeGroup() {
+        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
+        $outfile = $this->getPath() . '/models/json/prod-update-attribute-group-20200922.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(1);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (trim($datum[1]) == "") {
+                    continue;
+                }
+
+                // 优先使用新名字
+                $attributeName = trim($datum[3]) ? trim($datum[3]) : trim($datum[1]);
+                $groupName = trim($datum[2]);
+
+                // 通用分组不修改
+                if ("通用属性" == $groupName || "" == $groupName) {
+                    continue;
+                }
+
+                $skuInfo = [
+                    'attribute_name' => $attributeName,
+                    'group_name' => $groupName,
+                ];
+                $sql = json_encode($skuInfo, JSON_UNESCAPED_UNICODE);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
     /**
      *
      */

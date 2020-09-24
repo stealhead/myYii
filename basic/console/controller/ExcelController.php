@@ -293,10 +293,15 @@ class ExcelController extends Controller
      */
     public function actionAttributeInit() {
         $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
-        $outfile = $this->getPath() . '/models/json/attribute-group20200922.json';
+        $outfile = $this->getPath() . '/models/sql/attribute-group20200922.sql';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
-            $sql = '[';
+            $sql = "
+create temporary table tmp__prod_attribute_group
+as
+select guid, name, status, sort_order, created_at, created_by, updated_at, updated_by
+from prod_attribute_group a 
+where 1 = 2\n";
             file_put_contents($outfile, $sql);
             $spreadsheet->setActiveSheetIndex(2);
             $sheetData = $spreadsheet->getActiveSheet()->toArray();
@@ -304,16 +309,13 @@ class ExcelController extends Controller
                 if ($k == 0) {
                     continue;
                 }
-                $skuInfo = [
-                    'group_name' => trim($datum[0]),
-                ];
-                $sql = json_encode($skuInfo, JSON_UNESCAPED_UNICODE);
-                if (count($sheetData) != $k+1) {
-                    $sql .= ',';
+                if ($datum[0] == "") {
+                    continue;
                 }
+                $sql = "union select SUBSTRING(md5('${datum[0]}'), 1, 6), '{$datum[0]}', 'enabled', '{$k}', current_timestamp(), 'System', current_timestamp(), 'System' \n";
                 file_put_contents($outfile, $sql, FILE_APPEND);
             }
-            file_put_contents($outfile, ']', FILE_APPEND);
+            file_put_contents($outfile, ';', FILE_APPEND);
 
         }
         catch (\Exception $e) {
@@ -338,6 +340,9 @@ class ExcelController extends Controller
                 if ($k == 0) {
                     continue;
                 }
+                if (trim($datum[0]) == "") {
+                    continue;
+                }
                 $skuInfo = [
                     'attribute_name' => trim($datum[0]),
                     'apply_to' => trim($datum[1]),
@@ -350,7 +355,7 @@ class ExcelController extends Controller
                     'is_new' => trim($datum[8]),
                 ];
                 $sql = json_encode($skuInfo, JSON_UNESCAPED_UNICODE);
-                if (trim($datum[0])) {
+                if (trim($sheetData[$k+1][0]) != "") {
                     $sql .= ',';
                 }
                 file_put_contents($outfile, $sql, FILE_APPEND);

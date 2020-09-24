@@ -47,6 +47,46 @@ where 1 = 2\n";
 
     }
 
+    /**
+     * 属性名称修改
+     * @return string
+     */
+    public function actionUpdateAttributeName() {
+        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
+        $outfile = $this->getPath() . '/models/sql/prod-update-attribute-name.sql';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = "
+create temporary table tmp__prod_attribute
+as
+select old_name, new_name
+from prod_attribute a 
+where 1 = 2\n";
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(1);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if ($datum[3] == "") {
+                    continue;
+                }
+                $sql = "union select '{$datum[1]}', '{$datum[3]}' \n";
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ';', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+
+        echo("成功\n");
+    }
+
+
+
 
     public function getPath() {
         return dirname(dirname(__DIR__));

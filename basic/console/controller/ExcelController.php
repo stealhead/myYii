@@ -292,8 +292,8 @@ class ExcelController extends Controller
      * 初始化商品中心属性分组
      */
     public function actionAttributeInit() {
-        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
-        $outfile = $this->getPath() . '/models/sql/attribute-group20200922.sql';
+        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092702-1.xlsx";
+        $outfile = $this->getPath() . '/models/sql/attribute-group2020092702.sql';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = "
@@ -328,8 +328,8 @@ where 1 = 2\n";
      *  初始化新增属性信息
      */
     public function actionNewAttributes() {
-        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092101.xlsx";
-        $outfile = $this->getPath() . '/models/json/new-attribute-20200922.json';
+        $inputFileName = $this->getPath() . "/models/excel/商品属性整理092702-1.xlsx";
+        $outfile = $this->getPath() . '/models/json/new-attribute-2020092702.json';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = '[';
@@ -347,12 +347,13 @@ where 1 = 2\n";
                     'attribute_name' => trim($datum[0]),
                     'apply_to' => trim($datum[1]),
                     'group_name' => trim($datum[2]),
-                    'input_type' => trim($datum[3]),
-                    'value_set' => trim($datum[4]),
-                    'factory_catalog' => trim($datum[5]),
-                    'competitor_catalog' => trim($datum[6]),
-                    'product_catalog' => trim($datum[7]),
-                    'is_new' => trim($datum[8]),
+                    'data_type' => trim($datum[3]),
+                    'input_type' => trim($datum[4]),
+                    'value_set' => trim($datum[5]),
+                    'factory_catalog' => trim($datum[6]),
+                    'competitor_catalog' => trim($datum[7]),
+                    'product_catalog' => trim($datum[8]),
+                    'is_new' => trim($datum[9]),
                 ];
                 $sql = json_encode($skuInfo, JSON_UNESCAPED_UNICODE);
                 if (trim($sheetData[$k+1][0]) != "") {

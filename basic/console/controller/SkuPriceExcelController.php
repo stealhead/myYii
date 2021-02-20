@@ -26,7 +26,7 @@ class SkuPriceExcelController extends Controller
      */
     public function actionSkuPrice() {
         $inputFileName = $this->getPath() . "/models/excel/sku-price-adjust.xls";
-        $outfile = $this->getPath() . '/models/sql/sku-price-adjust2.json';
+        $outfile = $this->getPath() . '/models/json/sku-price-adjust.json';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = '[';

@@ -24,9 +24,9 @@ class SkuPriceExcelController extends Controller
     /**
      * 渠道价调整
      */
-    public function actionSkuChannelPrice() {
+    public function actionSkuPrice() {
         $inputFileName = $this->getPath() . "/models/excel/sku-price-adjust.xls";
-        $outfile = $this->getPath() . '/models/sql/sku-price-adjust.json';
+        $outfile = $this->getPath() . '/models/sql/sku-price-adjust2.json';
         try {
             $spreadsheet = IOFactory::load($inputFileName);
             $sql = '[';

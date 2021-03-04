@@ -29,6 +29,7 @@ class Admin extends ActiveRecord implements IdentityInterface
         return [
             [['username'], 'string', 'max' => 30],
             [['password'], 'string', 'max' => 64],
+            [['password'], 'string', 'max' => 64],
         ];
     }
 

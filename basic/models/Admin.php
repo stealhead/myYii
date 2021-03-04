@@ -27,7 +27,7 @@ class Admin extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username'], 'string', 'max' => 30],
+            [['username1'], 'string', 'max' => 30],
             [['username'], 'string', 'max' => 30],
             [['password'], 'string', 'max' => 64],
             [['password'], 'string', 'max' => 64],

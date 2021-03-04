@@ -328,6 +328,45 @@ class ExcelController extends Controller
         echo("成功\n");
     }
 
+    /**
+     * 渠道价调整 20210224
+     */
+    public function actionSkuChannelPrice20210224() {
+        $inputFileName = $this->getPath() . "/models/excel/sku-price-channel-20210224.xlsx";
+        $outfile = $this->getPath() . '/models/json/sku-channel-price-adjust20210224.json';
+        try {
+            $spreadsheet = IOFactory::load($inputFileName);
+            $sql = '[';
+            file_put_contents($outfile, $sql);
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheetData = $spreadsheet->getActiveSheet()->toArray();
+            foreach ($sheetData as $k => $datum) {
+                if ($k == 0) {
+                    continue;
+                }
+                if (!is_numeric(trim($datum[0])) || !is_numeric(trim($datum[1]))) {
+                    var_dump($datum);
+                    continue;
+                }
+                $skuInfo = [
+                    'sku_id' => trim($datum[0]),
+                    'channel_price' => trim($datum[1])
+                ];
+                $sql = json_encode($skuInfo);
+                if (count($sheetData) != $k+1) {
+                    $sql .= ',';
+                }
+                file_put_contents($outfile, $sql, FILE_APPEND);
+            }
+            file_put_contents($outfile, ']', FILE_APPEND);
+
+        }
+        catch (\Exception $e) {
+            echo($e->getMessage() . "\n");
+        }
+        echo("成功\n");
+    }
+
 
     /**
      * 初始化商品中心属性分组
